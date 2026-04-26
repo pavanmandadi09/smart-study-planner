@@ -8,16 +8,15 @@ planner = StudyPlanner()
 try:
     while True:
         status = focus.get_focus_status()
-        subject = planner.get_current_subject()
+        subject, remaining = planner.get_current_subject()
 
         if status == "Focused":
-            message = f"Study: {subject}"
+            message = f"Study: {subject} | Time left: {remaining}s"
         else:
             message = "Pay Attention!"
 
-        print(f"{message}")
-
-        time.sleep(1)
+        print(f"[{status}] -> {message}")
+        time.sleep(2)
 
 except KeyboardInterrupt:
     focus.release()
