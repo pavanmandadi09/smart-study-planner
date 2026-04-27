@@ -9,67 +9,75 @@ CORS(app)
 focus = FocusDetector()
 planner = StudyPlanner()
 
-focus_time = 0
-
-
-#  Home route
+# HOME
 @app.route("/")
 def home():
     return "Smart Study Planner API Running"
 
-
-#  Live status (already working)
+# STATUS
 @app.route("/status")
 def get_status():
-    global focus_time
-
     status = focus.get_focus_status()
-    subject, remaining = planner.get_current_subject()
-
-    if status == "Focused":
-        focus_time += 2
-
-    if status == "Focused":
-        message = f"Study {subject}"
-    else:
-        message = "Pay Attention!"
+    subject, remaining = planner.get_current_subject(status)
 
     return jsonify({
         "status": status,
         "subject": subject,
         "time_left": remaining,
-        "message": message,
-        "focus_time": focus_time
+        "message": "Pay Attention!" if status != "Focused" else f"Study {subject}",
+        "day": planner.current_day,
+        "total_days": planner.total_days,
+        "day_completed": planner.day_completed,
+        "days_left": planner.total_days - planner.current_day
     })
 
-
-# Generate Study Plan (AI Logic)
+# PLAN
 @app.route("/plan", methods=["POST"])
-def generate_plan():
+def create_plan():
     data = request.json
 
-    subjects = [s.strip() for s in data["subjects"]]
-    weak = [w.strip() for w in data["weak"]]
-    days = int(data["days"])
+    subjects = data["subjects"]
+    weak = data["weak"]
+    days = data["days"]
 
-    plan = []
+    planner.set_subjects(subjects, weak, days)
 
-    for day in range(1, days + 1):
-        day_plan = []
-
+    timetable = []
+    for d in range(1, int(days) + 1):
+        day_schedule = []
         for sub in subjects:
             if sub in weak:
-                day_plan.append(f"{sub} - 2 hrs")
+                day_schedule.append(f"{sub}-120s")
             else:
-                day_plan.append(f"{sub} - 1 hr")
+                day_schedule.append(f"{sub}-60s")
 
-        plan.append({
-            "day": day,
-            "schedule": day_plan
+        timetable.append({
+            "day": d,
+            "schedule": day_schedule
         })
 
-    return jsonify(plan)
+    return jsonify(timetable)
 
+# COMPLETE
+@app.route("/complete", methods=["POST"])
+def complete():
+    planner.complete_current_subject()
+    return jsonify({"message": "Subject completed"})
+
+# NOT COMPLETE (EXTRA TIME)
+@app.route("/not_complete", methods=["POST"])
+def not_complete():
+    data = request.json
+    extra = int(data.get("extra_time", 0))
+
+    planner.extend_current_subject(extra)
+    return jsonify({"message": "Extended time"})
+
+# NEXT DAY
+@app.route("/next_day", methods=["POST"])
+def next_day():
+    planner.next_day()
+    return jsonify({"message": "Moved to next day"})
 
 if __name__ == "__main__":
     app.run(debug=True)
