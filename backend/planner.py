@@ -34,7 +34,7 @@ class StudyPlanner:
 
         current = self.subjects[self.index]
 
-        # 🛑 STOP if day completed
+        # STOP if day completed
         if self.day_completed:
             return current, 0
 
@@ -51,7 +51,7 @@ class StudyPlanner:
         if not self.subjects:
             return
 
-        # 🛑 LAST SUBJECT → END DAY
+        #  LAST SUBJECT → END DAY
         if self.index == len(self.subjects) - 1:
             self.day_completed = True
             self.time_left = 0   # stop timer
@@ -69,7 +69,7 @@ class StudyPlanner:
 
         current = self.subjects[self.index]
         self.durations[current] += extra_time + 2
-        self.time_left += extra_time
+        self.time_left += extra_time + 2
 
     def next_day(self):
         if self.current_day < self.total_days:
