@@ -31,6 +31,7 @@ def get_status():
         "days_left": planner.total_days - planner.current_day
     })
 
+
 # PLAN
 @app.route("/plan", methods=["POST"])
 def create_plan():

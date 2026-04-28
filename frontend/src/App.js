@@ -16,7 +16,7 @@ function App() {
     color: "white"
   };
 
-  // 🔥 RESET askExtra when subject changes
+  // RESET askExtra when subject changes
   useEffect(() => {
     setAskExtra(false);
     setExtraTime("");
